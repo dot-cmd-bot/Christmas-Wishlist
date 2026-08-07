@@ -1,7 +1,7 @@
 import { computeDescriptor, euclideanDistance, facePhotoUrl, loadFaceModels, loadImage } from "./face";
 import type { User } from "./types";
 
-export const MATCH_THRESHOLD = 0.6;
+export const MATCH_THRESHOLD = 0.45;
 
 export interface ReferenceFace {
   userId: string;

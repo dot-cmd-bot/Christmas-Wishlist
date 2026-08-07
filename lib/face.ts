@@ -39,10 +39,10 @@ export async function computeDescriptor(
   input: HTMLVideoElement | HTMLImageElement | HTMLCanvasElement,
 ): Promise<Float32Array | null> {
   const faceapi = await getFaceApi();
-  // minConfidence 0.3: close-up / poorly lit faces (score ~0.4-0.6) are
-  // otherwise missed entirely. False positives are harmless — matching still
-  // requires a low Euclidean distance to a known reference face.
-  const options = new faceapi.SsdMobilenetv1Options({ minConfidence: 0.3 });
+  // minConfidence 0.5: low-confidence boxes from chairs/objects are rejected so
+  // an empty scene reports "no face" instead of producing a garbage descriptor.
+  // All reference photos score >= 0.7, so they still build reliably.
+  const options = new faceapi.SsdMobilenetv1Options({ minConfidence: 0.5 });
   const detection = await faceapi
     .detectSingleFace(input, options)
     .withFaceLandmarks()
