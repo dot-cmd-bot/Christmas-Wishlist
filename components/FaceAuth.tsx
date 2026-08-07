@@ -5,7 +5,7 @@ import { Camera, Loader2, ScanFace } from "lucide-react";
 import CameraCapture, {
   type CameraCaptureHandle,
 } from "@/components/CameraCapture";
-import { buildReferences, identifyUser, MATCH_THRESHOLD } from "@/lib/recognition";
+import { buildReferences, identifyUser } from "@/lib/recognition";
 import { fetchUsers } from "@/lib/data";
 import { isSupabaseConfigured } from "@/lib/supabase";
 import type { User } from "@/lib/types";
@@ -105,11 +105,7 @@ export default function FaceAuth({ onSuccess }: FaceAuthProps) {
         case "no-match":
           fail(
             "no-match",
-            `No match found (closest distance ${
-              Number.isFinite(outcome.closestDistance)
-                ? outcome.closestDistance.toFixed(3)
-                : "—"
-            }, threshold ${MATCH_THRESHOLD}). Make sure your face is well lit and try again.`,
+            "No match found. Make sure your face is well lit and try again.",
           );
           break;
       }
@@ -168,8 +164,7 @@ export default function FaceAuth({ onSuccess }: FaceAuthProps) {
       )}
 
       <p className="max-w-sm text-center text-xs text-stone-400">
-        Match threshold: {MATCH_THRESHOLD}. For best results, face the camera in a
-        well-lit room. (Demo auth — a printed photo can spoof a match.)
+        For best results, face the camera in a well-lit room.
       </p>
     </div>
   );
