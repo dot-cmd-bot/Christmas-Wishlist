@@ -64,9 +64,16 @@ Drop each member's photo into `public/faces/` named after their `face_recognitio
 
 ```
 public/faces/aaron.jpg
-public/faces/bob.jpg
-public/faces/carol.jpg
-public/faces/dave.jpg
+public/faces/archie.jpg
+public/faces/mandy.jpg
+public/faces/edder.jpg
+public/faces/mikan.jpg
+public/faces/mama_arcy.jpg
+public/faces/papa_jun.jpg
+public/faces/joy.jpg
+public/faces/lin.jpg
+public/faces/michael.jpg
+public/faces/gianna.jpg
 ```
 
 - Use a **front-facing, well-lit** photo.
@@ -106,11 +113,10 @@ git push -u origin main
 
 ## 🧪 Trying it out
 
-The seed includes Aaron, Bob, Carol, and Dave:
+The seed includes Aaron, Archie, Mandy, Edder, Mikan, Mama Arcy, Papa Jun, Joy, Lin, Michael, and Gianna — all wishlists start empty.
 
-- **Bob** is `lucky_one = true` — logging in as Bob shows *"You Are the Lucky One!"*.
-- **Aaron** has `see_lucky_one = true` and favors Bob — he sees the **Lucky One Card** for Bob.
-- Sample items and reservations are pre-seeded so you can test reserving, unreserving, and the single-vs-multiple gift rules immediately.
+- Aaron and Archie have reference photos (`aaron.jpg`, `archie.jpg`) and can log in by face.
+- The other members are in the roster but need a reference photo dropped in `public/faces/<face_recognition_id>.jpg` before face login will match them.
 
 ---
 

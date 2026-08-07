@@ -98,47 +98,24 @@ end;
 $$;
 
 -- ============================================================
--- SEED DATA (sample family)
+-- SEED DATA (family roster)
 -- Add your own members and drop their reference photos in
 -- /public/faces/<face_recognition_id>.jpg
+-- Wishlists start empty; each member adds items from their dashboard.
 -- ============================================================
 
 insert into public.users
   (id, name, profile_picture, face_recognition_id, see_lucky_one, lucky_one, favorite_user_id)
 values
-  ('11111111-1111-4111-8111-111111111111', 'Aaron', '/faces/aaron.jpg', 'aaron', true, false, '22222222-2222-4222-8222-222222222222'),
-  ('22222222-2222-4222-8222-222222222222', 'Bob',   '/faces/bob.svg',   'bob',   false, true, null),
-  ('33333333-3333-4333-8333-333333333333', 'Carol', '/faces/carol.svg', 'carol', false, false, '44444444-4444-4444-8444-444444444444'),
-  ('44444444-4444-4444-8444-444444444444', 'Dave',  '/faces/dave.svg',  'dave',  false, false, null)
+  ('11111111-1111-4111-8111-111111111111', 'Aaron',    '/faces/aaron.jpg',   'aaron',     false, false, null),
+  ('aa000000-0000-4000-8000-000000000001', 'Archie',   '/faces/archie.jpg',  'archie',    false, false, null),
+  ('bb000000-0000-4000-8000-000000000002', 'Mandy',    null,                 'mandy',     false, false, null),
+  ('cc000000-0000-4000-8000-000000000003', 'Edder',    null,                 'edder',     false, false, null),
+  ('dd000000-0000-4000-8000-000000000004', 'Mikan',    null,                 'mikan',     false, false, null),
+  ('ee000000-0000-4000-8000-000000000005', 'Mama Arcy', null,                'mama_arcy', false, false, null),
+  ('ff000000-0000-4000-8000-000000000006', 'Papa Jun', null,                 'papa_jun',  false, false, null),
+  ('01000000-0000-4000-8000-000000000007', 'Joy',      null,                 'joy',       false, false, null),
+  ('02000000-0000-4000-8000-000000000008', 'Lin',      null,                 'lin',       false, false, null),
+  ('03000000-0000-4000-8000-000000000009', 'Michael',  null,                 'michael',   false, false, null),
+  ('04000000-0000-4000-8000-000000000000', 'Gianna',   null,                 'gianna',    false, false, null)
 on conflict (id) do nothing;
-
-insert into public.wishlist_items
-  (id, owner_id, item_name, item_size, purchase_link, allow_multiple)
-values
-  -- Aaron
-  ('a1000000-0000-4000-8000-000000000001', '11111111-1111-4111-8111-111111111111', 'Nintendo Switch',   'Standard',  null, false),
-  ('a1000000-0000-4000-8000-000000000002', '11111111-1111-4111-8111-111111111111', 'Coffee Grinder',    'Medium',    null, false),
-  ('a1000000-0000-4000-8000-000000000003', '11111111-1111-4111-8111-111111111111', 'Gift Card $50',     'Any',       'https://example.com', true),
-  -- Bob (the Lucky One)
-  ('b2000000-0000-4000-8000-000000000001', '22222222-2222-4222-8222-222222222222', 'Nintendo Switch',   'OLED',      null, false),
-  ('b2000000-0000-4000-8000-000000000002', '22222222-2222-4222-8222-222222222222', 'Chocolate Box',     'Large',     null, true),
-  ('b2000000-0000-4000-8000-000000000003', '22222222-2222-4222-8222-222222222222', 'LEGO Set',          '18+',       null, false),
-  -- Carol
-  ('c3000000-0000-4000-8000-000000000001', '33333333-3333-4333-8333-333333333333', 'Kindle',            '11 Gen',    null, false),
-  ('c3000000-0000-4000-8000-000000000002', '33333333-3333-4333-8333-333333333333', 'Cozy Socks Pack',   'One size',  null, true),
-  ('c3000000-0000-4000-8000-000000000003', '33333333-3333-4333-8333-333333333333', 'Board Game',        'Standard',  null, false),
-  -- Dave
-  ('d4000000-0000-4000-8000-000000000001', '44444444-4444-4444-8444-444444444444', 'Instant Camera',    'Mini',      null, false),
-  ('d4000000-0000-4000-8000-000000000002', '44444444-4444-4444-8444-444444444444', 'Slippers',          '42',        null, true),
-  ('d4000000-0000-4000-8000-000000000003', '44444444-4444-4444-8444-444444444444', 'Cookbook',          'Hardcover', null, false)
-on conflict (id) do nothing;
-
-insert into public.reservations
-  (wishlist_item_id, reserved_by_user_id)
-values
-  ('b2000000-0000-4000-8000-000000000001', '11111111-1111-4111-8111-111111111111'), -- Aaron reserved Bob's Switch (single)
-  ('b2000000-0000-4000-8000-000000000002', '11111111-1111-4111-8111-111111111111'), -- Aaron reserved Bob's Chocolate Box (multi)
-  ('b2000000-0000-4000-8000-000000000002', '44444444-4444-4444-8444-444444444444'), -- Dave also reserved the Chocolate Box (multi)
-  ('a1000000-0000-4000-8000-000000000001', '22222222-2222-4222-8222-222222222222'), -- Bob reserved Aaron's Switch (single)
-  ('c3000000-0000-4000-8000-000000000003', '11111111-1111-4111-8111-111111111111')  -- Aaron reserved Carol's Board Game (single)
-on conflict (wishlist_item_id, reserved_by_user_id) do nothing;
