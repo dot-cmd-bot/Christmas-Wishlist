@@ -109,7 +109,8 @@ values
   ('11111111-1111-4111-8111-111111111111', 'Alice', '/faces/alice.svg', 'alice', true, false, '22222222-2222-4222-8222-222222222222'),
   ('22222222-2222-4222-8222-222222222222', 'Bob',   '/faces/bob.svg',   'bob',   false, true, null),
   ('33333333-3333-4333-8333-333333333333', 'Carol', '/faces/carol.svg', 'carol', false, false, '44444444-4444-4444-8444-444444444444'),
-  ('44444444-4444-4444-8444-444444444444', 'Dave',  '/faces/dave.svg',  'dave',  false, false, null)
+  ('44444444-4444-4444-8444-444444444444', 'Dave',  '/faces/dave.svg',  'dave',  false, false, null),
+  ('55555555-5555-4555-8555-555555555555', 'Aaron', '/faces/aaron.jpg', 'aaron', true, false, '22222222-2222-4222-8222-222222222222')
 on conflict (id) do nothing;
 
 insert into public.wishlist_items
@@ -130,7 +131,11 @@ values
   -- Dave
   ('d4000000-0000-4000-8000-000000000001', '44444444-4444-4444-8444-444444444444', 'Instant Camera',    'Mini',      null, false),
   ('d4000000-0000-4000-8000-000000000002', '44444444-4444-4444-8444-444444444444', 'Slippers',          '42',        null, true),
-  ('d4000000-0000-4000-8000-000000000003', '44444444-4444-4444-8444-444444444444', 'Cookbook',          'Hardcover', null, false)
+  ('d4000000-0000-4000-8000-000000000003', '44444444-4444-4444-8444-444444444444', 'Cookbook',          'Hardcover', null, false),
+  -- Aaron
+  ('e5000000-0000-4000-8000-000000000001', '55555555-5555-4555-8555-555555555555', 'Wireless Headphones', 'Over-ear', null, false),
+  ('e5000000-0000-4000-8000-000000000002', '55555555-5555-4555-8555-555555555555', 'Sneakers',            'US 10',    null, false),
+  ('e5000000-0000-4000-8000-000000000003', '55555555-5555-4555-8555-555555555555', 'Coffee Gift Card',    'Any',      'https://example.com', true)
 on conflict (id) do nothing;
 
 insert into public.reservations
