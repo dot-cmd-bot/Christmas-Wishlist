@@ -63,7 +63,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 Drop each member's photo into `public/faces/` named after their `face_recognition_id`:
 
 ```
-public/faces/alice.jpg
+public/faces/aaron.jpg
 public/faces/bob.jpg
 public/faces/carol.jpg
 public/faces/dave.jpg
@@ -106,10 +106,10 @@ git push -u origin main
 
 ## 🧪 Trying it out
 
-The seed includes Alice, Bob, Carol, and Dave:
+The seed includes Aaron, Bob, Carol, and Dave:
 
 - **Bob** is `lucky_one = true` — logging in as Bob shows *"You Are the Lucky One!"*.
-- **Alice** has `see_lucky_one = true` and favors Bob — she sees the **Lucky One Card** for Bob.
+- **Aaron** has `see_lucky_one = true` and favors Bob — he sees the **Lucky One Card** for Bob.
 - Sample items and reservations are pre-seeded so you can test reserving, unreserving, and the single-vs-multiple gift rules immediately.
 
 ---

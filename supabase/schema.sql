@@ -106,17 +106,16 @@ $$;
 insert into public.users
   (id, name, profile_picture, face_recognition_id, see_lucky_one, lucky_one, favorite_user_id)
 values
-  ('11111111-1111-4111-8111-111111111111', 'Alice', '/faces/alice.svg', 'alice', true, false, '22222222-2222-4222-8222-222222222222'),
+  ('11111111-1111-4111-8111-111111111111', 'Aaron', '/faces/aaron.jpg', 'aaron', true, false, '22222222-2222-4222-8222-222222222222'),
   ('22222222-2222-4222-8222-222222222222', 'Bob',   '/faces/bob.svg',   'bob',   false, true, null),
   ('33333333-3333-4333-8333-333333333333', 'Carol', '/faces/carol.svg', 'carol', false, false, '44444444-4444-4444-8444-444444444444'),
-  ('44444444-4444-4444-8444-444444444444', 'Dave',  '/faces/dave.svg',  'dave',  false, false, null),
-  ('55555555-5555-4555-8555-555555555555', 'Aaron', '/faces/aaron.jpg', 'aaron', true, false, '22222222-2222-4222-8222-222222222222')
+  ('44444444-4444-4444-8444-444444444444', 'Dave',  '/faces/dave.svg',  'dave',  false, false, null)
 on conflict (id) do nothing;
 
 insert into public.wishlist_items
   (id, owner_id, item_name, item_size, purchase_link, allow_multiple)
 values
-  -- Alice
+  -- Aaron
   ('a1000000-0000-4000-8000-000000000001', '11111111-1111-4111-8111-111111111111', 'Nintendo Switch',   'Standard',  null, false),
   ('a1000000-0000-4000-8000-000000000002', '11111111-1111-4111-8111-111111111111', 'Coffee Grinder',    'Medium',    null, false),
   ('a1000000-0000-4000-8000-000000000003', '11111111-1111-4111-8111-111111111111', 'Gift Card $50',     'Any',       'https://example.com', true),
@@ -131,19 +130,15 @@ values
   -- Dave
   ('d4000000-0000-4000-8000-000000000001', '44444444-4444-4444-8444-444444444444', 'Instant Camera',    'Mini',      null, false),
   ('d4000000-0000-4000-8000-000000000002', '44444444-4444-4444-8444-444444444444', 'Slippers',          '42',        null, true),
-  ('d4000000-0000-4000-8000-000000000003', '44444444-4444-4444-8444-444444444444', 'Cookbook',          'Hardcover', null, false),
-  -- Aaron
-  ('e5000000-0000-4000-8000-000000000001', '55555555-5555-4555-8555-555555555555', 'Wireless Headphones', 'Over-ear', null, false),
-  ('e5000000-0000-4000-8000-000000000002', '55555555-5555-4555-8555-555555555555', 'Sneakers',            'US 10',    null, false),
-  ('e5000000-0000-4000-8000-000000000003', '55555555-5555-4555-8555-555555555555', 'Coffee Gift Card',    'Any',      'https://example.com', true)
+  ('d4000000-0000-4000-8000-000000000003', '44444444-4444-4444-8444-444444444444', 'Cookbook',          'Hardcover', null, false)
 on conflict (id) do nothing;
 
 insert into public.reservations
   (wishlist_item_id, reserved_by_user_id)
 values
-  ('b2000000-0000-4000-8000-000000000001', '11111111-1111-4111-8111-111111111111'), -- Alice reserved Bob's Switch (single)
-  ('b2000000-0000-4000-8000-000000000002', '11111111-1111-4111-8111-111111111111'), -- Alice reserved Bob's Chocolate Box (multi)
+  ('b2000000-0000-4000-8000-000000000001', '11111111-1111-4111-8111-111111111111'), -- Aaron reserved Bob's Switch (single)
+  ('b2000000-0000-4000-8000-000000000002', '11111111-1111-4111-8111-111111111111'), -- Aaron reserved Bob's Chocolate Box (multi)
   ('b2000000-0000-4000-8000-000000000002', '44444444-4444-4444-8444-444444444444'), -- Dave also reserved the Chocolate Box (multi)
-  ('a1000000-0000-4000-8000-000000000001', '22222222-2222-4222-8222-222222222222'), -- Bob reserved Alice's Switch (single)
-  ('c3000000-0000-4000-8000-000000000003', '11111111-1111-4111-8111-111111111111')  -- Alice reserved Carol's Board Game (single)
+  ('a1000000-0000-4000-8000-000000000001', '22222222-2222-4222-8222-222222222222'), -- Bob reserved Aaron's Switch (single)
+  ('c3000000-0000-4000-8000-000000000003', '11111111-1111-4111-8111-111111111111')  -- Aaron reserved Carol's Board Game (single)
 on conflict (wishlist_item_id, reserved_by_user_id) do nothing;
