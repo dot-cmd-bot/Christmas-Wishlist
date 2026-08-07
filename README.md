@@ -1,36 +1,121 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🎄 Christmas WishList
 
-## Getting Started
+A private, Christmas-themed wishlist app for family and friends. Log in with **face recognition** (runs entirely in the browser — free, no paid APIs), share wishlists, and prevent duplicate gifts with a **hidden reservation system**.
 
-First, run the development server:
+Built with **Next.js 16 (App Router)**, **TypeScript**, **Tailwind CSS v4**, **Supabase**, and **`@vladmandic/face-api`** (TensorFlow.js).
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+---
+
+## ✨ Features
+
+- **Face recognition login** — look at your webcam, click *Recognize me*, and you're in.
+- **Dashboard**
+  - *Lucky One Card* — shown when `see_lucky_one` is enabled; highlights the user marked as `lucky_one`. If **you** are the lucky one, you instead see a *"You Are the Lucky One!"* banner.
+  - *My Wishlist* — add / edit / delete items, and toggle **Allow Multiple Gifts**.
+  - *User Directory* — real-time search by name, one favorite per user (auto-replaces the previous favorite, no self-favorites), tap a member to open their wishlist.
+- **Hidden reservation system**
+  - Reserve items so nobody buys the same gift twice.
+  - The **wishlist owner never sees any reservation state**.
+  - Other users see only "Reserved" — **never who** reserved it.
+  - *Allow Multiple* items accept several reservations; single-gift items accept exactly one (enforced by a database trigger too).
+
+---
+
+## 📦 Project structure
+
+```
+app/                  Next.js App Router pages (login, dashboard, wishlist/[userId])
+components/           UI components (face auth, cards, directory, modals…)
+lib/                  Supabase client, data access, face recognition, session
+public/models/        face-api model weights (committed, no network needed)
+public/faces/         reference photos: <face_recognition_id>.jpg (+ SVG placeholders)
+supabase/schema.sql   tables, triggers + seed data
+scripts/copy-models.mjs  re-copy models if you upgrade face-api
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🚀 Setup
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 1. Supabase
 
-## Learn More
+1. Create a free project at [supabase.com](https://supabase.com).
+2. Open **SQL Editor** → paste the contents of [`supabase/schema.sql`](supabase/schema.sql) → **Run**. This creates the `users`, `wishlist_items`, and `reservations` tables, the single-gift trigger, and 4 sample members.
+3. Copy the project URL and anon key from **Settings → API**.
 
-To learn more about Next.js, take a look at the following resources:
+### 2. Env vars
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+cp .env.example .env.local
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Fill in `.env.local`:
 
-## Deploy on Vercel
+```ini
+NEXT_PUBLIC_SUPABASE_URL=https://your-project-ref.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+> On Vercel, add these two variables under **Project → Settings → Environment Variables** instead.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### 3. Add reference face photos (required for login)
+
+Drop each member's photo into `public/faces/` named after their `face_recognition_id`:
+
+```
+public/faces/alice.jpg
+public/faces/bob.jpg
+public/faces/carol.jpg
+public/faces/dave.jpg
+```
+
+- Use a **front-facing, well-lit** photo.
+- The SVG placeholders (`.svg`) are just avatars for the UI — they are **not** usable for recognition, so login won't match until you add the `.jpg` files.
+- To add new members: insert a row in `users` (give them a unique `face_recognition_id`) and add their photo.
+
+### 4. Run locally
+
+```bash
+npm install
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000). Webcam access requires `localhost` or HTTPS (both fine here).
+
+---
+
+## ☁️ Deploy to Vercel
+
+1. Push this repo to **GitHub** (see below).
+2. On [vercel.com](https://vercel.com), **Import** the repo.
+3. Add the two Supabase environment variables.
+4. Deploy. Models and face photos ship as static assets — nothing else is needed.
+
+### Pushing to GitHub
+
+```bash
+git init
+git add .
+git commit -m "Christmas WishList app"
+git branch -M main
+git remote add origin https://github.com/<you>/christmas-wishlist.git
+git push -u origin main
+```
+
+---
+
+## 🧪 Trying it out
+
+The seed includes Alice, Bob, Carol, and Dave:
+
+- **Bob** is `lucky_one = true` — logging in as Bob shows *"You Are the Lucky One!"*.
+- **Alice** has `see_lucky_one = true` and favors Bob — she sees the **Lucky One Card** for Bob.
+- Sample items and reservations are pre-seeded so you can test reserving, unreserving, and the single-vs-multiple gift rules immediately.
+
+---
+
+## ⚠️ Notes & limitations
+
+- **Demo-grade auth**: face matching runs on the client and a printed photo can spoof a match. This is fine for a family/personal app, not a hardened auth system.
+- **Reservation privacy** is enforced in the app layer: the owner never fetches or renders reservation data, and other users only ever see "Reserved", never a name.
+- Requires a modern browser (Chrome/Edge/Firefox/Safari) and a camera.
