@@ -84,14 +84,34 @@ export default function FaceAuth({ onSuccess }: FaceAuthProps) {
     setMessage("Recognizing your face…");
 
     try {
-      const match = await identifyUser(users, frame);
-      if (match) {
-        onSuccess(match.user);
-      } else {
-        fail(
-          "no-match",
-          `No match found (closest distance ${match === null ? "—" : ""}). Make sure your face is well lit and try again.`,
-        );
+      const outcome = await identifyUser(users, frame);
+      if (outcome.status === "matched") {
+        onSuccess(outcome.match.user);
+        return;
+      }
+      switch (outcome.status) {
+        case "no-face":
+          fail(
+            "no-match",
+            "No face detected in the frame. Center your face, improve lighting, and try again.",
+          );
+          break;
+        case "no-refs":
+          fail(
+            "no-match",
+            "Couldn't prepare any reference photos. Check that each member has a clear face photo in public/faces.",
+          );
+          break;
+        case "no-match":
+          fail(
+            "no-match",
+            `No match found (closest distance ${
+              Number.isFinite(outcome.closestDistance)
+                ? outcome.closestDistance.toFixed(3)
+                : "—"
+            }, threshold ${MATCH_THRESHOLD}). Make sure your face is well lit and try again.`,
+          );
+          break;
       }
     } catch (err) {
       console.error(err);
