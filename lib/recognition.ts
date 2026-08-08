@@ -13,9 +13,13 @@ let cachedReferences: { key: string; refs: ReferenceFace[] } | null = null;
 
 function keyFor(users: User[]): string {
   return users
-    .map((u) => u.id)
+    .map((u) => `${u.id}:${u.face_image_url ?? ""}`)
     .sort()
     .join(",");
+}
+
+function referencePhotoUrl(user: User): string {
+  return user.face_image_url ?? facePhotoUrl(user.face_recognition_id);
 }
 
 export async function buildReferences(users: User[]): Promise<ReferenceFace[]> {
@@ -28,7 +32,7 @@ export async function buildReferences(users: User[]): Promise<ReferenceFace[]> {
   for (const user of users) {
     if (!user.face_recognition_id) continue;
     try {
-      const img = await loadImage(facePhotoUrl(user.face_recognition_id));
+      const img = await loadImage(referencePhotoUrl(user));
       const descriptor = await computeDescriptor(img);
       if (descriptor) {
         refs.push({ userId: user.id, name: user.name, descriptor });

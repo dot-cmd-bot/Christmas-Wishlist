@@ -170,3 +170,17 @@ export async function setFavorite(
     .eq("id", userId);
   if (error) throw error;
 }
+
+export async function updateFaceImage(
+  userId: string,
+  faceImageUrl: string,
+): Promise<void> {
+  const { error } = await db()
+    .from("users")
+    .update({
+      face_image_url: faceImageUrl,
+      profile_picture: faceImageUrl,
+    })
+    .eq("id", userId);
+  if (error) throw error;
+}

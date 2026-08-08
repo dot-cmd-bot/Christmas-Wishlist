@@ -15,10 +15,11 @@ export interface CameraCaptureHandle {
 interface CameraCaptureProps {
   onError?: (message: string) => void;
   mirror?: boolean;
+  facingMode?: "user" | "environment";
 }
 
 const CameraCapture = forwardRef<CameraCaptureHandle, CameraCaptureProps>(
-  function CameraCapture({ onError, mirror = true }, ref) {
+  function CameraCapture({ onError, mirror = true, facingMode = "user" }, ref) {
     const videoRef = useRef<HTMLVideoElement>(null);
     const streamRef = useRef<MediaStream | null>(null);
 
@@ -51,7 +52,7 @@ const CameraCapture = forwardRef<CameraCaptureHandle, CameraCaptureProps>(
         try {
           const stream = await navigator.mediaDevices.getUserMedia({
             video: {
-              facingMode: "user",
+              facingMode,
               width: { ideal: 1280 },
               height: { ideal: 720 },
             },
@@ -77,9 +78,12 @@ const CameraCapture = forwardRef<CameraCaptureHandle, CameraCaptureProps>(
       return () => {
         cancelled = true;
         streamRef.current?.getTracks().forEach((t) => t.stop());
+        streamRef.current = null;
       };
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [facingMode]);
+
+    const mirrored = facingMode === "user" && mirror;
 
     return (
       <video
@@ -87,7 +91,7 @@ const CameraCapture = forwardRef<CameraCaptureHandle, CameraCaptureProps>(
         autoPlay
         playsInline
         muted
-        className={`h-full w-full object-cover ${mirror ? "-scale-x-100" : ""}`}
+        className={`h-full w-full object-cover ${mirrored ? "-scale-x-100" : ""}`}
       />
     );
   },

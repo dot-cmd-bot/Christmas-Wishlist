@@ -14,6 +14,7 @@ create table if not exists public.users (
   name text not null,
   profile_picture text,
   face_recognition_id text unique not null,
+  face_image_url text,
   see_lucky_one boolean not null default false,
   lucky_one boolean not null default false,
   favorite_user_id uuid references public.users (id) on delete set null,
@@ -54,6 +55,26 @@ create policy "item-images-public-insert" on storage.objects
   for insert with check (bucket_id = 'item-images');
 create policy "item-images-public-delete" on storage.objects
   for delete using (bucket_id = 'item-images');
+
+-- For existing databases, add the face_image_url column.
+alter table public.users add column if not exists face_image_url text;
+
+-- ------------------------------------------------------------
+-- Storage: member login photos (updated from the dashboard).
+-- Uploads overwrite <face_recognition_id>.jpg, so update is needed too.
+-- ------------------------------------------------------------
+insert into storage.buckets (id, name, public)
+values ('faces', 'faces', true)
+on conflict (id) do nothing;
+
+create policy "faces-public-read" on storage.objects
+  for select using (bucket_id = 'faces');
+create policy "faces-public-insert" on storage.objects
+  for insert with check (bucket_id = 'faces');
+create policy "faces-public-update" on storage.objects
+  for update using (bucket_id = 'faces');
+create policy "faces-public-delete" on storage.objects
+  for delete using (bucket_id = 'faces');
 
 -- ------------------------------------------------------------
 -- reservations (kept hidden from the wishlist owner)

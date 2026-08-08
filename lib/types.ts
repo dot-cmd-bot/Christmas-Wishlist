@@ -3,6 +3,7 @@ export interface User {
   name: string;
   profile_picture: string | null;
   face_recognition_id: string;
+  face_image_url?: string | null;
   see_lucky_one: boolean;
   lucky_one: boolean;
   favorite_user_id: string | null;

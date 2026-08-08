@@ -2,9 +2,10 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2, WifiOff } from "lucide-react";
+import { Camera, Loader2, WifiOff } from "lucide-react";
 import { useAuth } from "@/components/AuthProvider";
 import AppHeader from "@/components/AppHeader";
+import FacePhotoModal from "@/components/FacePhotoModal";
 import { LuckyOneBanner, LuckyOneCard } from "@/components/LuckyOneCard";
 import MyWishlistCard from "@/components/MyWishlistCard";
 import UserDirectory from "@/components/UserDirectory";
@@ -28,6 +29,7 @@ export default function DashboardPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [items, setItems] = useState<WishlistItem[]>([]);
   const [allItems, setAllItems] = useState<WishlistItem[]>([]);
+  const [faceModalOpen, setFaceModalOpen] = useState(false);
   const [ready, setReady] = useState(!isSupabaseConfigured);
   const [error, setError] = useState(
     isSupabaseConfigured
@@ -120,9 +122,19 @@ export default function DashboardPage() {
           <LuckyOneCard user={luckyOne} />
         ) : null}
 
-        <h1 className="text-2xl font-bold text-stone-800">
-          Welcome, {user.name}!
-        </h1>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h1 className="text-2xl font-bold text-stone-800">
+            Welcome, {user.name}!
+          </h1>
+          <button
+            type="button"
+            onClick={() => setFaceModalOpen(true)}
+            className="inline-flex items-center gap-1.5 rounded-xl border border-stone-300 bg-white px-3.5 py-2 text-sm font-semibold text-stone-700 shadow-sm transition hover:bg-stone-50"
+          >
+            <Camera className="h-4 w-4" />
+            Update face photo
+          </button>
+        </div>
 
         <MyWishlistCard
           items={items}
@@ -158,6 +170,13 @@ export default function DashboardPage() {
           currentUser={user}
           itemsByUser={itemsByUser}
           onFavorite={handleFavorite}
+        />
+
+        <FacePhotoModal
+          open={faceModalOpen}
+          user={user}
+          onClose={() => setFaceModalOpen(false)}
+          onSaved={refresh}
         />
       </main>
     </div>
