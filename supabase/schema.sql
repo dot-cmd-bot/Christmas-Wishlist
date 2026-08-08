@@ -29,12 +29,31 @@ create table if not exists public.wishlist_items (
   item_name text not null,
   item_size text not null,
   purchase_link text,
+  image_url text,
   allow_multiple boolean not null default false,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
 
 create index if not exists wishlist_items_owner_idx on public.wishlist_items (owner_id);
+
+-- For existing databases, add the image_url column.
+alter table public.wishlist_items add column if not exists image_url text;
+
+-- ------------------------------------------------------------
+-- Storage: item photos (camera / upload) in a public bucket.
+-- The anon key needs read/insert/delete on storage.objects.
+-- ------------------------------------------------------------
+insert into storage.buckets (id, name, public)
+values ('item-images', 'item-images', true)
+on conflict (id) do nothing;
+
+create policy "item-images-public-read" on storage.objects
+  for select using (bucket_id = 'item-images');
+create policy "item-images-public-insert" on storage.objects
+  for insert with check (bucket_id = 'item-images');
+create policy "item-images-public-delete" on storage.objects
+  for delete using (bucket_id = 'item-images');
 
 -- ------------------------------------------------------------
 -- reservations (kept hidden from the wishlist owner)

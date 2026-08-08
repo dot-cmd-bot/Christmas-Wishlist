@@ -1,4 +1,5 @@
 import { getSupabase } from "./supabase";
+import { deleteItemImage } from "./itemImage";
 import type { ItemInput, Reservation, User, WishlistItem } from "./types";
 
 const db = getSupabase;
@@ -85,6 +86,7 @@ export async function addItem(
       item_name: input.item_name,
       item_size: input.item_size,
       purchase_link: input.purchase_link || null,
+      image_url: input.image_url || null,
       allow_multiple: input.allow_multiple ?? false,
     })
     .select()
@@ -108,6 +110,14 @@ export async function updateItem(
 }
 
 export async function deleteItem(id: string): Promise<void> {
+  const { data: item } = await db()
+    .from("wishlist_items")
+    .select("image_url")
+    .eq("id", id)
+    .maybeSingle();
+  if (item?.image_url) {
+    await deleteItemImage(item.image_url);
+  }
   const { error } = await db().from("wishlist_items").delete().eq("id", id);
   if (error) throw error;
 }

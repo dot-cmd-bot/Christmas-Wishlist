@@ -14,6 +14,7 @@ import ItemModal from "@/components/ItemModal";
 
 interface MyWishlistCardProps {
   items: WishlistItem[];
+  ownerId: string;
   onAdd: (input: ItemInput) => Promise<void>;
   onUpdate: (id: string, patch: Partial<ItemInput>) => Promise<void>;
   onDelete: (id: string) => Promise<void>;
@@ -22,6 +23,7 @@ interface MyWishlistCardProps {
 
 export default function MyWishlistCard({
   items,
+  ownerId,
   onAdd,
   onUpdate,
   onDelete,
@@ -83,32 +85,49 @@ export default function MyWishlistCard({
               key={item.id}
               className="flex flex-col gap-2 rounded-xl border border-stone-200 p-3.5 transition hover:border-emerald-300 hover:shadow-sm sm:flex-row sm:items-center sm:justify-between"
             >
-              <div className="min-w-0">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="truncate font-semibold text-stone-800">
-                    {item.item_name}
-                  </span>
-                  <span className="rounded-full bg-stone-100 px-2 py-0.5 text-xs font-medium text-stone-600">
-                    Size: {item.item_size}
-                  </span>
-                  {item.allow_multiple && (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-800">
-                      <Users className="h-3 w-3" />
-                      Multiple
-                    </span>
-                  )}
-                </div>
-                {item.purchase_link && (
+              <div className="flex min-w-0 items-start gap-3">
+                {item.image_url ? (
                   <a
-                    href={item.purchase_link}
+                    href={item.image_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="mt-1 inline-flex items-center gap-1 text-xs text-emerald-700 underline-offset-2 hover:underline"
+                    className="shrink-0"
                   >
-                    <ExternalLink className="h-3 w-3" />
-                    {item.purchase_link}
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={item.image_url}
+                      alt={item.item_name}
+                      className="h-14 w-14 rounded-lg object-cover"
+                    />
                   </a>
-                )}
+                ) : null}
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="truncate font-semibold text-stone-800">
+                      {item.item_name}
+                    </span>
+                    <span className="rounded-full bg-stone-100 px-2 py-0.5 text-xs font-medium text-stone-600">
+                      Size: {item.item_size}
+                    </span>
+                    {item.allow_multiple && (
+                      <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-800">
+                        <Users className="h-3 w-3" />
+                        Multiple
+                      </span>
+                    )}
+                  </div>
+                  {item.purchase_link && (
+                    <a
+                      href={item.purchase_link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-1 inline-flex items-center gap-1 text-xs text-emerald-700 underline-offset-2 hover:underline"
+                    >
+                      <ExternalLink className="h-3 w-3" />
+                      {item.purchase_link}
+                    </a>
+                  )}
+                </div>
               </div>
 
               <div className="flex shrink-0 items-center gap-2 sm:gap-3">
@@ -152,6 +171,7 @@ export default function MyWishlistCard({
       <ItemModal
         open={modalOpen}
         item={editing}
+        ownerId={ownerId}
         onClose={() => setModalOpen(false)}
         onSubmit={async (input) => {
           if (editing) {

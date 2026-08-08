@@ -14,10 +14,11 @@ export interface CameraCaptureHandle {
 
 interface CameraCaptureProps {
   onError?: (message: string) => void;
+  mirror?: boolean;
 }
 
 const CameraCapture = forwardRef<CameraCaptureHandle, CameraCaptureProps>(
-  function CameraCapture({ onError }, ref) {
+  function CameraCapture({ onError, mirror = true }, ref) {
     const videoRef = useRef<HTMLVideoElement>(null);
     const streamRef = useRef<MediaStream | null>(null);
 
@@ -86,7 +87,7 @@ const CameraCapture = forwardRef<CameraCaptureHandle, CameraCaptureProps>(
         autoPlay
         playsInline
         muted
-        className="h-full w-full -scale-x-100 object-cover"
+        className={`h-full w-full object-cover ${mirror ? "-scale-x-100" : ""}`}
       />
     );
   },

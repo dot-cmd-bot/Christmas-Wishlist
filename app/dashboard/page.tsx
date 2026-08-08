@@ -126,6 +126,7 @@ export default function DashboardPage() {
 
         <MyWishlistCard
           items={items}
+          ownerId={user.id}
           onAdd={async (input: ItemInput) => {
             const item = await addItem(user.id, input);
             setItems((prev) => [...prev, item]);

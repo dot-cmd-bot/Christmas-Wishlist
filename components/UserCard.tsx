@@ -71,7 +71,16 @@ export default function UserCard({
             <ul className="space-y-1.5">
               {preview.map((item) => (
                 <li key={item.id} className="flex items-center gap-2 text-sm text-stone-600">
-                  <Gift className="h-3.5 w-3.5 shrink-0 text-emerald-600" />
+                  {item.image_url ? (
+                    /* eslint-disable-next-line @next/next/no-img-element */
+                    <img
+                      src={item.image_url}
+                      alt=""
+                      className="h-8 w-8 shrink-0 rounded-md object-cover"
+                    />
+                  ) : (
+                    <Gift className="h-3.5 w-3.5 shrink-0 text-emerald-600" />
+                  )}
                   <span className="truncate">{item.item_name}</span>
                 </li>
               ))}

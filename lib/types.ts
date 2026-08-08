@@ -15,6 +15,7 @@ export interface WishlistItem {
   item_name: string;
   item_size: string;
   purchase_link: string | null;
+  image_url: string | null;
   allow_multiple: boolean;
   created_at?: string;
   updated_at?: string;
@@ -31,5 +32,6 @@ export interface ItemInput {
   item_name: string;
   item_size: string;
   purchase_link?: string | null;
+  image_url?: string | null;
   allow_multiple?: boolean;
 }

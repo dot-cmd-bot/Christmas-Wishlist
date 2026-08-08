@@ -81,7 +81,8 @@ export default function WishlistViewer({
               className="rounded-xl border border-stone-200 bg-white p-4 transition hover:shadow-md"
             >
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <div className="min-w-0">
+              <div className="flex min-w-0 items-start gap-3">
+                <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="truncate font-semibold text-stone-800">
                       {item.item_name}
@@ -108,6 +109,23 @@ export default function WishlistViewer({
                     </p>
                   )}
                 </div>
+                {item.image_url && (
+                  <a
+                    href={item.image_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="shrink-0"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={item.image_url}
+                      alt={item.item_name}
+                      className="h-14 w-14 rounded-lg object-cover"
+                    />
+                  </a>
+                )}
+              </div>
 
                 <div className="shrink-0">
                   {mine ? (
