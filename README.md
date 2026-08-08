@@ -113,10 +113,9 @@ git push -u origin main
 
 ## 🧪 Trying it out
 
-The seed includes Aaron, Archie, Mandy, Edder, Mikan, Mama Arcy, Papa Jun, Joy, Lin, Michael, and Gianna — all wishlists start empty.
+The seed includes Aaron, Archie, Mandy, Edder, Mikan, Mama Arcy, Papa Jun, Joy, Lin, Michael, Gianna, Papa Jojo, Mama Rosebie, Joana, Mark, Andrew, and Angel — all wishlists start empty.
 
-- Aaron and Archie have reference photos (`aaron.jpg`, `archie.jpg`) and can log in by face.
-- The other members are in the roster but need a reference photo dropped in `public/faces/<face_recognition_id>.jpg` before face login will match them.
+- Every member has a reference photo in `public/faces/<face_recognition_id>.jpg` and can log in by face.
 
 ---
 

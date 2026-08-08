@@ -157,5 +157,11 @@ values
   ('01000000-0000-4000-8000-000000000007', 'Joy',      null,                 'joy',       false, false, null),
   ('02000000-0000-4000-8000-000000000008', 'Lin',      null,                 'lin',       false, false, null),
   ('03000000-0000-4000-8000-000000000009', 'Michael',  null,                 'michael',   false, false, null),
-  ('04000000-0000-4000-8000-000000000000', 'Gianna',   null,                 'gianna',    false, false, null)
+  ('04000000-0000-4000-8000-000000000000', 'Gianna',   null,                 'gianna',    false, false, null),
+  ('05000000-0000-4000-8000-000000000001', 'Papa Jojo', null,                'papa_jojo', false, false, null),
+  ('06000000-0000-4000-8000-000000000002', 'Mama Rosebie', null,             'mama_rosebie', false, false, null),
+  ('07000000-0000-4000-8000-000000000003', 'Joana',    null,                 'joana',     false, false, null),
+  ('08000000-0000-4000-8000-000000000004', 'Mark',     null,                 'mark',      false, false, null),
+  ('09000000-0000-4000-8000-000000000005', 'Andrew',   null,                 'andrew',    false, false, null),
+  ('10000000-0000-4000-8000-000000000006', 'Angel',    null,                 'angel',     false, false, null)
 on conflict (id) do nothing;
