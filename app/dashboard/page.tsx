@@ -120,6 +120,10 @@ export default function DashboardPage() {
           <LuckyOneCard user={luckyOne} />
         ) : null}
 
+        <h1 className="text-2xl font-bold text-stone-800">
+          Welcome, {user.name}!
+        </h1>
+
         <MyWishlistCard
           items={items}
           onAdd={async (input: ItemInput) => {

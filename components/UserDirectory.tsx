@@ -62,7 +62,7 @@ export default function UserDirectory({
           No one matches “{query}”.
         </p>
       ) : (
-        <ul className="mt-4 grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+        <ul className="mt-4 grid grid-cols-2 gap-2.5 sm:gap-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
           {filtered.map((user) => (
             <li key={user.id}>
               <UserCard
