@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2, WifiOff } from "lucide-react";
 import { useAuth } from "@/components/AuthProvider";
@@ -11,6 +11,7 @@ import UserDirectory from "@/components/UserDirectory";
 import {
   addItem,
   deleteItem,
+  fetchAllWishlistItems,
   fetchUsers,
   fetchWishlist,
   setFavorite,
@@ -26,6 +27,7 @@ export default function DashboardPage() {
 
   const [users, setUsers] = useState<User[]>([]);
   const [items, setItems] = useState<WishlistItem[]>([]);
+  const [allItems, setAllItems] = useState<WishlistItem[]>([]);
   const [ready, setReady] = useState(!isSupabaseConfigured);
   const [error, setError] = useState(
     isSupabaseConfigured
@@ -44,13 +46,15 @@ export default function DashboardPage() {
     let cancelled = false;
     void (async () => {
       try {
-        const [allUsers, myItems] = await Promise.all([
+        const [allUsers, myItems, everyItem] = await Promise.all([
           fetchUsers(),
           fetchWishlist(user.id),
+          fetchAllWishlistItems(),
         ]);
         if (cancelled) return;
         setUsers(allUsers);
         setItems(myItems);
+        setAllItems(everyItem);
       } catch (err) {
         console.error(err);
         if (!cancelled) setError("Could not load your wishlist data.");
@@ -72,6 +76,16 @@ export default function DashboardPage() {
     },
     [user, refresh],
   );
+
+  const itemsByUser = useMemo(() => {
+    const map = new Map<string, WishlistItem[]>();
+    for (const item of allItems) {
+      const list = map.get(item.owner_id) ?? [];
+      list.push(item);
+      map.set(item.owner_id, list);
+    }
+    return map;
+  }, [allItems]);
 
   if (loading || !user || !ready) {
     return (
@@ -137,6 +151,7 @@ export default function DashboardPage() {
         <UserDirectory
           users={otherUsers}
           currentUser={user}
+          itemsByUser={itemsByUser}
           onFavorite={handleFavorite}
         />
       </main>

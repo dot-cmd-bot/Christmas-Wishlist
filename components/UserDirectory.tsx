@@ -3,18 +3,20 @@
 import { useMemo, useState } from "react";
 import { Search, Users } from "lucide-react";
 import { useRouter } from "next/navigation";
-import type { User } from "@/lib/types";
+import type { User, WishlistItem } from "@/lib/types";
 import UserCard from "@/components/UserCard";
 
 interface UserDirectoryProps {
   users: User[];
   currentUser: User;
+  itemsByUser: Map<string, WishlistItem[]>;
   onFavorite: (user: User) => void;
 }
 
 export default function UserDirectory({
   users,
   currentUser,
+  itemsByUser,
   onFavorite,
 }: UserDirectoryProps) {
   const router = useRouter();
@@ -66,6 +68,7 @@ export default function UserDirectory({
               <UserCard
                 user={user}
                 isFavorite={currentUser.favorite_user_id === user.id}
+                items={itemsByUser.get(user.id) ?? []}
                 onOpen={(u) => router.push(`/wishlist/${u.id}`)}
                 onFavorite={onFavorite}
               />

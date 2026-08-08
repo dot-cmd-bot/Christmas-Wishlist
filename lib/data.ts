@@ -32,6 +32,15 @@ export async function fetchWishlist(ownerId: string): Promise<WishlistItem[]> {
   return data as WishlistItem[];
 }
 
+export async function fetchAllWishlistItems(): Promise<WishlistItem[]> {
+  const { data, error } = await db()
+    .from("wishlist_items")
+    .select("*")
+    .order("created_at");
+  if (error) throw error;
+  return (data as WishlistItem[]) ?? [];
+}
+
 export interface WishlistView {
   items: WishlistItem[];
   reservations: Reservation[];
