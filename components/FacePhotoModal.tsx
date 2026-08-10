@@ -5,20 +5,41 @@ import { Camera, Loader2, X } from "lucide-react";
 import CameraCapture, {
   type CameraCaptureHandle,
 } from "@/components/CameraCapture";
-import { uploadFaceImage } from "@/lib/faceImage";
-import { updateFaceImage } from "@/lib/data";
+import {
+  uploadFaceImage,
+  uploadProfilePicture,
+} from "@/lib/faceImage";
+import { updateFaceImage, updateProfilePicture } from "@/lib/data";
 import type { User } from "@/lib/types";
+
+export type FacePhotoMode = "login" | "profile";
 
 interface FacePhotoModalProps {
   open: boolean;
   user: User | null;
+  mode: FacePhotoMode;
   onClose: () => void;
   onSaved: () => Promise<void>;
 }
 
+const MODE_COPY: Record<
+  FacePhotoMode,
+  { title: string; caption: string }
+> = {
+  login: {
+    title: "Update your login photo",
+    caption: "Looks good? This becomes the photo used to recognize you when you log in.",
+  },
+  profile: {
+    title: "Update your profile picture",
+    caption: "Looks good? This becomes the photo everyone sees next to your name.",
+  },
+};
+
 export default function FacePhotoModal({
   open,
   user,
+  mode,
   onClose,
   onSaved,
 }: FacePhotoModalProps) {
@@ -74,8 +95,15 @@ export default function FacePhotoModal({
     setSaving(true);
     setError("");
     try {
-      const url = await uploadFaceImage(user.face_recognition_id, captured.blob);
-      await updateFaceImage(user.id, url);
+      const url =
+        mode === "login"
+          ? await uploadFaceImage(user.face_recognition_id, captured.blob)
+          : await uploadProfilePicture(user.face_recognition_id, captured.blob);
+      if (mode === "login") {
+        await updateFaceImage(user.id, url);
+      } else {
+        await updateProfilePicture(user.id, url);
+      }
       await onSaved();
       setCaptured(null);
       onClose();
@@ -100,7 +128,7 @@ export default function FacePhotoModal({
       >
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-bold text-stone-800">
-            Update your login photo
+            {MODE_COPY[mode].title}
           </h3>
           <button
             type="button"
@@ -122,7 +150,7 @@ export default function FacePhotoModal({
                 className="aspect-[4/3] w-full rounded-xl bg-stone-900 object-cover"
               />
               <p className="text-center text-sm text-stone-500">
-                Looks good? This becomes your new login photo.
+                {MODE_COPY[mode].caption}
               </p>
               <div className="flex justify-end gap-2">
                 <button

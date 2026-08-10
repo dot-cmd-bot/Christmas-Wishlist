@@ -2,9 +2,10 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Camera, Loader2, WifiOff } from "lucide-react";
+import { Camera, Image as ImageIcon, Loader2, WifiOff } from "lucide-react";
 import { useAuth } from "@/components/AuthProvider";
 import AppHeader from "@/components/AppHeader";
+import Avatar from "@/components/Avatar";
 import FacePhotoModal from "@/components/FacePhotoModal";
 import { LuckyOneBanner, LuckyOneCard } from "@/components/LuckyOneCard";
 import MyWishlistCard from "@/components/MyWishlistCard";
@@ -30,6 +31,7 @@ export default function DashboardPage() {
   const [items, setItems] = useState<WishlistItem[]>([]);
   const [allItems, setAllItems] = useState<WishlistItem[]>([]);
   const [faceModalOpen, setFaceModalOpen] = useState(false);
+  const [profileModalOpen, setProfileModalOpen] = useState(false);
   const [ready, setReady] = useState(!isSupabaseConfigured);
   const [error, setError] = useState(
     isSupabaseConfigured
@@ -122,19 +124,57 @@ export default function DashboardPage() {
           <LuckyOneCard user={luckyOne} />
         ) : null}
 
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <h1 className="text-2xl font-bold text-stone-800">
-            Welcome, {user.name}!
-          </h1>
-          <button
-            type="button"
-            onClick={() => setFaceModalOpen(true)}
-            className="inline-flex items-center gap-1.5 rounded-xl border border-stone-300 bg-white px-3.5 py-2 text-sm font-semibold text-stone-700 shadow-sm transition hover:bg-stone-50"
-          >
-            <Camera className="h-4 w-4" />
-            Update face photo
-          </button>
-        </div>
+        <section className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-black/5">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex min-w-0 items-center gap-3">
+              <Avatar user={user} size="lg" />
+              <div className="min-w-0">
+                <h1 className="text-2xl font-bold text-stone-800">
+                  Welcome, {user.name}!
+                </h1>
+                <p className="text-sm text-stone-500">
+                  Manage how you appear and how you log in.
+                </p>
+              </div>
+            </div>
+            <div className="flex shrink-0 flex-col gap-2">
+              <button
+                type="button"
+                onClick={() => setFaceModalOpen(true)}
+                className="inline-flex items-center gap-1.5 rounded-xl border border-stone-300 bg-white px-3.5 py-2 text-sm font-semibold text-stone-700 shadow-sm transition hover:bg-stone-50"
+              >
+                <Camera className="h-4 w-4" />
+                Change face login photo
+              </button>
+              <button
+                type="button"
+                onClick={() => setProfileModalOpen(true)}
+                className="inline-flex items-center gap-1.5 rounded-xl border border-stone-300 bg-white px-3.5 py-2 text-sm font-semibold text-stone-700 shadow-sm transition hover:bg-stone-50"
+              >
+                <ImageIcon className="h-4 w-4" />
+                Change profile picture
+              </button>
+            </div>
+          </div>
+          <div className="mt-4 grid gap-2 rounded-xl bg-stone-50 p-3 text-sm text-stone-600">
+            <p className="flex gap-2">
+              <Camera className="mt-0.5 h-4 w-4 shrink-0 text-emerald-700" />
+              <span>
+                <strong>Change face login photo:</strong> take a front-facing
+                selfie. This is the photo used to recognize you when you log
+                in — it is not shown to anyone.
+              </span>
+            </p>
+            <p className="flex gap-2">
+              <ImageIcon className="mt-0.5 h-4 w-4 shrink-0 text-emerald-700" />
+              <span>
+                <strong>Change profile picture:</strong> choose the photo that
+                everyone sees next to your name in the members directory. It
+                has no effect on logging in.
+              </span>
+            </p>
+          </div>
+        </section>
 
         <MyWishlistCard
           items={items}
@@ -175,7 +215,15 @@ export default function DashboardPage() {
         <FacePhotoModal
           open={faceModalOpen}
           user={user}
+          mode="login"
           onClose={() => setFaceModalOpen(false)}
+          onSaved={refresh}
+        />
+        <FacePhotoModal
+          open={profileModalOpen}
+          user={user}
+          mode="profile"
+          onClose={() => setProfileModalOpen(false)}
           onSaved={refresh}
         />
       </main>
