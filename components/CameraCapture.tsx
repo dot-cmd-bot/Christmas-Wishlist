@@ -14,12 +14,13 @@ export interface CameraCaptureHandle {
 
 interface CameraCaptureProps {
   onError?: (message: string) => void;
+  onReady?: () => void;
   mirror?: boolean;
   facingMode?: "user" | "environment";
 }
 
 const CameraCapture = forwardRef<CameraCaptureHandle, CameraCaptureProps>(
-  function CameraCapture({ onError, mirror = true, facingMode = "user" }, ref) {
+  function CameraCapture({ onError, onReady, mirror = true, facingMode = "user" }, ref) {
     const videoRef = useRef<HTMLVideoElement>(null);
     const streamRef = useRef<MediaStream | null>(null);
 
@@ -67,6 +68,7 @@ const CameraCapture = forwardRef<CameraCaptureHandle, CameraCaptureProps>(
           if (video) {
             video.srcObject = stream;
             await video.play().catch(() => {});
+            if (video.videoWidth > 0) onReady?.();
           }
         } catch {
           onError?.(

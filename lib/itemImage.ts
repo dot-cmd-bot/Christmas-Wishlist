@@ -1,10 +1,8 @@
-import { getSupabase } from "./supabase";
+import { uploadImage } from "./upload";
 
 const BUCKET = "item-images";
-const MAX_DIM = 800;
-const JPEG_QUALITY = 0.85;
 
-export async function resizeImage(file: Blob, maxDim = MAX_DIM): Promise<Blob> {
+export async function resizeImage(file: Blob, maxDim = 800): Promise<Blob> {
   const bitmap = await createImageBitmap(file);
   const scale = Math.min(1, maxDim / Math.max(bitmap.width, bitmap.height));
   const width = Math.max(1, Math.round(bitmap.width * scale));
@@ -24,36 +22,12 @@ export async function resizeImage(file: Blob, maxDim = MAX_DIM): Promise<Blob> {
       (blob) =>
         blob ? resolve(blob) : reject(new Error("Could not encode the image.")),
       "image/jpeg",
-      JPEG_QUALITY,
+      0.85,
     );
   });
 }
 
-export async function uploadItemImage(
-  ownerId: string,
-  blob: Blob,
-): Promise<string> {
-  const path = `${ownerId}/${crypto.randomUUID()}.jpg`;
-  const { error } = await getSupabase()
-    .storage.from(BUCKET)
-    .upload(path, blob, { contentType: "image/jpeg" });
-  if (error) throw error;
-  const { data } = getSupabase().storage.from(BUCKET).getPublicUrl(path);
-  return data.publicUrl;
-}
-
-export function imagePathFromUrl(publicUrl: string): string | null {
-  const marker = `/${BUCKET}/`;
-  const idx = publicUrl.indexOf(marker);
-  if (idx === -1) return null;
-  return publicUrl.slice(idx + marker.length);
-}
-
-export async function deleteItemImage(
-  publicUrl: string | null | undefined,
-): Promise<void> {
-  if (!publicUrl) return;
-  const path = imagePathFromUrl(publicUrl);
-  if (!path) return;
-  await getSupabase().storage.from(BUCKET).remove([path]);
+/** Upload a (client-side resized) image via the authenticated server. */
+export async function uploadItemImage(blob: Blob): Promise<string> {
+  return uploadImage(BUCKET, blob);
 }

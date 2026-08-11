@@ -1,0 +1,104 @@
+[
+  {
+    "file": "D:\\Coding\\Nextjs\\Christmas Wishlist App\\docs\\screenshots\\01-login-camera.png",
+    "name": "login-camera",
+    "title": "Login — camera preview",
+    "caption": "The login screen shows the live front camera with a face outline. The webcam feed was automated with Aaron’s photo so recognition can match him."
+  },
+  {
+    "file": "D:\\Coding\\Nextjs\\Christmas Wishlist App\\docs\\screenshots\\02-login-recognizing.png",
+    "name": "login-recognizing",
+    "title": "Login — recognizing",
+    "caption": "After pressing “Recognize me”, the app computes the face descriptor of the frame and compares it to every member’s reference descriptor."
+  },
+  {
+    "file": "D:\\Coding\\Nextjs\\Christmas Wishlist App\\docs\\screenshots\\03-dashboard.png",
+    "name": "dashboard",
+    "title": "Dashboard — home",
+    "caption": "After logging in you land on your dashboard: a profile card with the welcome message and the two photo buttons, then “My Wishlist”, then “Everyone’s Wishlists”."
+  },
+  {
+    "file": "D:\\Coding\\Nextjs\\Christmas Wishlist App\\docs\\screenshots\\04-modal-face-login.png",
+    "name": "modal-face-login",
+    "title": "Modal — Change face login photo",
+    "caption": "This front-camera-only modal captures the selfie used to recognize you at login. It is stored separately from your profile picture and is never shown to anyone."
+  },
+  {
+    "file": "D:\\Coding\\Nextjs\\Christmas Wishlist App\\docs\\screenshots\\05-modal-profile.png",
+    "name": "modal-profile",
+    "title": "Modal — Change profile picture",
+    "caption": "This modal captures the photo everyone sees next to your name in the directory. It has no effect on face login."
+  },
+  {
+    "file": "D:\\Coding\\Nextjs\\Christmas Wishlist App\\docs\\screenshots\\06-modal-add-empty.png",
+    "name": "modal-add-empty",
+    "title": "Modal — Add item (empty)",
+    "caption": "The add-item form: required Item Name and Size, optional Purchase Link, optional Photo (Take photo or Upload), and the “Allow multiple gifts” toggle."
+  },
+  {
+    "file": "D:\\Coding\\Nextjs\\Christmas Wishlist App\\docs\\screenshots\\07-item-photo-camera.png",
+    "name": "item-photo-camera",
+    "title": "Modal — item photo camera",
+    "caption": "The item photo camera opens inline with a Switch-camera button (top-right) to flip between the front and back camera when photographing a physical item."
+  },
+  {
+    "file": "D:\\Coding\\Nextjs\\Christmas Wishlist App\\docs\\screenshots\\08-modal-add-filled.png",
+    "name": "modal-add-filled",
+    "title": "Modal — add item with photo",
+    "caption": "The completed form with the uploaded photo preview. On save the image is resized to at most 800px JPEG and uploaded to Supabase Storage."
+  },
+  {
+    "file": "D:\\Coding\\Nextjs\\Christmas Wishlist App\\docs\\screenshots\\09-my-wishlist.png",
+    "name": "my-wishlist",
+    "title": "My Wishlist — populated",
+    "caption": "Your wishlist with three items. Each row shows the item thumbnail (click to view full size), name, size, optional link, a “Multiple” toggle, and Edit/Delete actions."
+  },
+  {
+    "file": "D:\\Coding\\Nextjs\\Christmas Wishlist App\\docs\\screenshots\\10-modal-edit-item.png",
+    "name": "modal-edit-item",
+    "title": "Modal — Edit item",
+    "caption": "Editing an existing item reuses the same form, prefilled with the current values and photo, with Replace/Remove photo controls."
+  },
+  {
+    "file": "D:\\Coding\\Nextjs\\Christmas Wishlist App\\docs\\screenshots\\11-directory-grid.png",
+    "name": "directory-grid",
+    "title": "Directory — grid view",
+    "caption": "Everyone’s Wishlists in grid view (2–6 responsive columns). Each card shows the avatar, name, a 3-item preview, a favorite heart, and “See more” when there are more than 3 items."
+  },
+  {
+    "file": "D:\\Coding\\Nextjs\\Christmas Wishlist App\\docs\\screenshots\\12-user-card-preview.png",
+    "name": "user-card-preview",
+    "title": "Directory — member card",
+    "caption": "A member card in detail: avatar, favorite heart, the first three wishlist items, and a “See more” link that opens the full wishlist."
+  },
+  {
+    "file": "D:\\Coding\\Nextjs\\Christmas Wishlist App\\docs\\screenshots\\13-directory-list.png",
+    "name": "directory-list",
+    "title": "Directory — list view",
+    "caption": "The same directory in list view: each member becomes a full-width card, easier to scan on larger screens."
+  },
+  {
+    "file": "D:\\Coding\\Nextjs\\Christmas Wishlist App\\docs\\screenshots\\14-member-wishlist.png",
+    "name": "member-wishlist",
+    "title": "Member wishlist — reserve",
+    "caption": "Opening a member’s wishlist shows every item with a Reserve button. Reservation names are always hidden from the wishlist owner."
+  },
+  {
+    "file": "D:\\Coding\\Nextjs\\Christmas Wishlist App\\docs\\screenshots\\15-reserved.png",
+    "name": "reserved",
+    "title": "Member wishlist — reserved",
+    "caption": "After reserving, the button becomes “Reserved by You — Unreserve”. Single-gift items can only be reserved once; multi-gift items can be shared by several people."
+  },
+  {
+    "file": "D:\\Coding\\Nextjs\\Christmas Wishlist App\\docs\\screenshots\\16-favorite.png",
+    "name": "favorite",
+    "title": "Directory — favorite a member",
+    "caption": "Clicking the heart marks a member as your favorite (stored on your user record). The heart fills red so their card stands out."
+  },
+  {
+    "file": "D:\\Coding\\Nextjs\\Christmas Wishlist App\\docs\\screenshots\\17-lucky-one.png",
+    "name": "lucky-one",
+    "title": "Dashboard — the Lucky One",
+    "caption": "If a member is flagged as the “lucky one” and you have see-the-lucky-one enabled, a card reveals who it is. The lucky member themselves sees a celebration banner."
+  }
+]

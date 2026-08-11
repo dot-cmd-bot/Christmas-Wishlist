@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  useEffect,
   useRef,
   useState,
   type ChangeEvent,
@@ -8,17 +9,12 @@ import {
 } from "react";
 import { Camera, ImagePlus, Trash2, X } from "lucide-react";
 import type { ItemInput, WishlistItem } from "@/lib/types";
-import {
-  deleteItemImage,
-  resizeImage,
-  uploadItemImage,
-} from "@/lib/itemImage";
+import { resizeImage, uploadItemImage } from "@/lib/itemImage";
 import ImageCapture from "@/components/ImageCapture";
 
 interface ItemModalProps {
   open: boolean;
   item: WishlistItem | null;
-  ownerId: string;
   onClose: () => void;
   onSubmit: (input: ItemInput) => Promise<void>;
 }
@@ -26,7 +22,6 @@ interface ItemModalProps {
 export default function ItemModal({
   open,
   item,
-  ownerId,
   onClose,
   onSubmit,
 }: ItemModalProps) {
@@ -46,7 +41,6 @@ export default function ItemModal({
         <ItemForm
           key={item?.id ?? "new"}
           item={item}
-          ownerId={ownerId}
           onClose={onClose}
           onSubmit={onSubmit}
         />
@@ -57,12 +51,10 @@ export default function ItemModal({
 
 function ItemForm({
   item,
-  ownerId,
   onClose,
   onSubmit,
 }: {
   item: WishlistItem | null;
-  ownerId: string;
   onClose: () => void;
   onSubmit: (input: ItemInput) => Promise<void>;
 }) {
@@ -85,9 +77,20 @@ function ItemForm({
   const [cameraOpen, setCameraOpen] = useState(false);
   const [showOptions, setShowOptions] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const nameInputRef = useRef<HTMLInputElement>(null);
 
-  const savedImageUrl = item?.image_url ?? null;
   const preview = pendingImage?.url ?? imageUrl;
+  useEffect(() => {
+    nameInputRef.current?.focus();
+  }, []);
+
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") onClose();
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
 
   function setPending(blob: Blob) {
     setPendingImage((prev) => {
@@ -135,7 +138,7 @@ function ItemForm({
     try {
       if (pendingImage) {
         const resized = await resizeImage(pendingImage.blob);
-        finalImageUrl = await uploadItemImage(ownerId, resized);
+        finalImageUrl = await uploadItemImage(resized);
       }
       await onSubmit({
         item_name: name.trim(),
@@ -144,9 +147,6 @@ function ItemForm({
         image_url: finalImageUrl,
         allow_multiple: allowMultiple,
       });
-      if (savedImageUrl && savedImageUrl !== finalImageUrl) {
-        await deleteItemImage(savedImageUrl).catch(() => {});
-      }
       onClose();
     } catch (err) {
       console.error(err);
@@ -176,6 +176,7 @@ function ItemForm({
         <label className="flex flex-col gap-1 text-sm font-medium text-stone-700">
           Item Name *
           <input
+            ref={nameInputRef}
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}

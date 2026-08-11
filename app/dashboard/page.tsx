@@ -13,14 +13,11 @@ import UserDirectory from "@/components/UserDirectory";
 import {
   addItem,
   deleteItem,
-  fetchAllWishlistItems,
-  fetchUsers,
-  fetchWishlist,
+  getDashboardData,
   setFavorite,
   toggleAllowMultiple,
   updateItem,
-} from "@/lib/data";
-import { isSupabaseConfigured } from "@/lib/supabase";
+} from "@/lib/actions";
 import type { ItemInput, User, WishlistItem } from "@/lib/types";
 
 export default function DashboardPage() {
@@ -30,14 +27,11 @@ export default function DashboardPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [items, setItems] = useState<WishlistItem[]>([]);
   const [allItems, setAllItems] = useState<WishlistItem[]>([]);
+  const [luckyOne, setLuckyOne] = useState<User | null>(null);
   const [faceModalOpen, setFaceModalOpen] = useState(false);
   const [profileModalOpen, setProfileModalOpen] = useState(false);
-  const [ready, setReady] = useState(!isSupabaseConfigured);
-  const [error, setError] = useState(
-    isSupabaseConfigured
-      ? ""
-      : "Supabase is not configured. Add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to .env.local",
-  );
+  const [ready, setReady] = useState(false);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     if (!loading && !user) {
@@ -46,25 +40,20 @@ export default function DashboardPage() {
   }, [loading, user, router]);
 
   useEffect(() => {
-    if (!user || !isSupabaseConfigured) return;
+    if (!user) return;
     let cancelled = false;
     void (async () => {
-      try {
-        const [allUsers, myItems, everyItem] = await Promise.all([
-          fetchUsers(),
-          fetchWishlist(user.id),
-          fetchAllWishlistItems(),
-        ]);
-        if (cancelled) return;
-        setUsers(allUsers);
-        setItems(myItems);
-        setAllItems(everyItem);
-      } catch (err) {
-        console.error(err);
-        if (!cancelled) setError("Could not load your wishlist data.");
-      } finally {
-        if (!cancelled) setReady(true);
+      const result = await getDashboardData();
+      if (cancelled) return;
+      if (!result.ok) {
+        setError(result.error);
+      } else {
+        setUsers(result.data.users);
+        setItems(result.data.items);
+        setAllItems(result.data.allItems);
+        setLuckyOne(result.data.luckyOne);
       }
+      setReady(true);
     })();
     return () => {
       cancelled = true;
@@ -73,10 +62,15 @@ export default function DashboardPage() {
 
   const handleFavorite = useCallback(
     async (target: User) => {
-      const next =
-        user?.favorite_user_id === target.id ? null : target.id;
-      await setFavorite(user!.id, next);
-      await refresh();
+      const next = user?.favorite_user_id === target.id ? null : target.id;
+      try {
+        const result = await setFavorite(next);
+        if (!result.ok) throw new Error(result.error);
+        await refresh();
+      } catch (err) {
+        console.error(err);
+        setError("Could not update your favorite. Please try again.");
+      }
     },
     [user, refresh],
   );
@@ -100,8 +94,7 @@ export default function DashboardPage() {
     );
   }
 
-  const otherUsers = users.filter((u) => u.id !== user.id);
-  const luckyOne = users.find((u) => u.lucky_one) ?? null;
+  const luckyMember = luckyOne;
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#fdf6ec] to-emerald-50/40">
@@ -120,8 +113,8 @@ export default function DashboardPage() {
 
         {user.lucky_one ? <LuckyOneBanner /> : null}
 
-        {!user.lucky_one && user.see_lucky_one && luckyOne ? (
-          <LuckyOneCard user={luckyOne} />
+        {!user.lucky_one && user.see_lucky_one && luckyMember ? (
+          <LuckyOneCard user={luckyMember} />
         ) : null}
 
         <section className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-black/5">
@@ -178,23 +171,24 @@ export default function DashboardPage() {
 
         <MyWishlistCard
           items={items}
-          ownerId={user.id}
           onAdd={async (input: ItemInput) => {
-            const item = await addItem(user.id, input);
-            setItems((prev) => [...prev, item]);
+            const result = await addItem(input);
+            if (!result.ok) throw new Error(result.error);
+            setItems((prev) => [...prev, result.data]);
           }}
           onUpdate={async (id, patch) => {
-            const item = await updateItem(id, patch);
-            setItems((prev) =>
-              prev.map((x) => (x.id === id ? item : x)),
-            );
+            const result = await updateItem(id, patch);
+            if (!result.ok) throw new Error(result.error);
+            setItems((prev) => prev.map((x) => (x.id === id ? result.data : x)));
           }}
           onDelete={async (id) => {
-            await deleteItem(id);
+            const result = await deleteItem(id);
+            if (!result.ok) throw new Error(result.error);
             setItems((prev) => prev.filter((x) => x.id !== id));
           }}
           onToggleAllowMultiple={async (item) => {
-            await toggleAllowMultiple(item.id, item.allow_multiple);
+            const result = await toggleAllowMultiple(item.id, item.allow_multiple);
+            if (!result.ok) throw new Error(result.error);
             setItems((prev) =>
               prev.map((x) =>
                 x.id === item.id
@@ -206,7 +200,7 @@ export default function DashboardPage() {
         />
 
         <UserDirectory
-          users={otherUsers}
+          users={users}
           currentUser={user}
           itemsByUser={itemsByUser}
           onFavorite={handleFavorite}

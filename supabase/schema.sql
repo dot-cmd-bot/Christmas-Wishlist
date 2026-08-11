@@ -137,6 +137,17 @@ begin
 end;
 $$;
 
+-- ------------------------------------------------------------
+-- face_descriptors: cached recognition descriptors so the server can
+-- verify face logins without recomputing every member on a cold start.
+-- Table + RLS lockdown live in security.sql.
+-- ------------------------------------------------------------
+create table if not exists public.face_descriptors (
+  user_id uuid primary key references public.users (id) on delete cascade,
+  descriptor float8[] not null,
+  updated_at timestamptz not null default now()
+);
+
 -- ============================================================
 -- SEED DATA (family roster)
 -- Add your own members and drop their reference photos in

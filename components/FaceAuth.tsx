@@ -1,13 +1,10 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { Camera, Loader2, ScanFace } from "lucide-react";
 import CameraCapture, {
   type CameraCaptureHandle,
 } from "@/components/CameraCapture";
-import { buildReferences, identifyUser } from "@/lib/recognition";
-import { fetchUsers } from "@/lib/data";
-import { isSupabaseConfigured } from "@/lib/supabase";
 import type { User } from "@/lib/types";
 
 type Phase =
@@ -22,9 +19,14 @@ interface FaceAuthProps {
   onSuccess: (user: User) => void;
 }
 
+interface LoginResponse {
+  ok?: boolean;
+  user?: User;
+  error?: string;
+}
+
 export default function FaceAuth({ onSuccess }: FaceAuthProps) {
   const cameraRef = useRef<CameraCaptureHandle>(null);
-  const usersRef = useRef<User[]>([]);
   const [phase, setPhase] = useState<Phase>("initializing");
   const [message, setMessage] = useState("");
 
@@ -33,46 +35,8 @@ export default function FaceAuth({ onSuccess }: FaceAuthProps) {
     setMessage(msg);
   }, []);
 
-  useEffect(() => {
-    let cancelled = false;
-    async function init() {
-      if (!isSupabaseConfigured) {
-        fail(
-          "error",
-          "Supabase is not configured. Add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to .env.local",
-        );
-        return;
-      }
-      try {
-        const users = await fetchUsers();
-        if (cancelled) return;
-        usersRef.current = users;
-        await buildReferences(users);
-        if (cancelled) return;
-        setPhase("ready");
-      } catch (err) {
-        console.error(err);
-        if (!cancelled) {
-          fail(
-            "error",
-            "Could not load login data. Check your Supabase connection and that reference photos exist.",
-          );
-        }
-      }
-    }
-    void init();
-    return () => {
-      cancelled = true;
-    };
-  }, [fail]);
-
   async function handleRecognize() {
     if (phase === "checking") return;
-    const users = usersRef.current;
-    if (users.length === 0) {
-      fail("error", "No registered users found. Seed the database first.");
-      return;
-    }
 
     const frame = cameraRef.current?.capture();
     if (!frame) {
@@ -84,31 +48,20 @@ export default function FaceAuth({ onSuccess }: FaceAuthProps) {
     setMessage("Recognizing your face…");
 
     try {
-      const outcome = await identifyUser(users, frame);
-      if (outcome.status === "matched") {
-        onSuccess(outcome.match.user);
+      const dataUrl = frame.toDataURL("image/jpeg", 0.92);
+
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ image: dataUrl }),
+      });
+      const body = (await res.json().catch(() => ({}))) as LoginResponse;
+
+      if (res.ok && body.ok && body.user) {
+        onSuccess(body.user);
         return;
       }
-      switch (outcome.status) {
-        case "no-face":
-          fail(
-            "no-match",
-            "No face detected in the frame. Center your face, improve lighting, and try again.",
-          );
-          break;
-        case "no-refs":
-          fail(
-            "no-match",
-            "Couldn't prepare any reference photos. Check that each member has a clear face photo in public/faces.",
-          );
-          break;
-        case "no-match":
-          fail(
-            "no-match",
-            "No match found. Make sure your face is well lit and try again.",
-          );
-          break;
-      }
+      fail("no-match", body.error ?? "No match found. Please try again.");
     } catch (err) {
       console.error(err);
       fail("error", "Something went wrong while recognizing your face.");
@@ -121,6 +74,7 @@ export default function FaceAuth({ onSuccess }: FaceAuthProps) {
         <CameraCapture
           ref={cameraRef}
           onError={(msg) => fail("camera-error", msg)}
+          onReady={() => setPhase((p) => (p === "initializing" ? "ready" : p))}
         />
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
           <div className="h-40 w-40 rounded-full border-2 border-dashed border-white/50" />
@@ -130,7 +84,7 @@ export default function FaceAuth({ onSuccess }: FaceAuthProps) {
       {phase === "initializing" && (
         <div className="flex items-center gap-2 text-sm text-stone-500">
           <Loader2 className="h-4 w-4 animate-spin" />
-          Loading face recognition…
+          Starting camera…
         </div>
       )}
 

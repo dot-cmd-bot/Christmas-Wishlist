@@ -1,29 +1,13 @@
-import { getSupabase } from "./supabase";
-import { resizeImage } from "./itemImage";
+import { uploadImage } from "./upload";
 
 const BUCKET = "faces";
 
-async function uploadToBucket(path: string, blob: Blob): Promise<string> {
-  const resized = await resizeImage(blob);
-  const { error } = await getSupabase().storage.from(BUCKET).upload(path, resized, {
-    contentType: "image/jpeg",
-    upsert: true,
-  });
-  if (error) throw error;
-  const { data } = getSupabase().storage.from(BUCKET).getPublicUrl(path);
-  return data.publicUrl;
+/** Upload the member's login photo (overwrites <face_recognition_id>.jpg). */
+export function uploadFaceImage(blob: Blob): Promise<string> {
+  return uploadImage(BUCKET, blob, "login");
 }
 
-export function uploadFaceImage(
-  faceRecognitionId: string,
-  blob: Blob,
-): Promise<string> {
-  return uploadToBucket(`${faceRecognitionId}.jpg`, blob);
-}
-
-export function uploadProfilePicture(
-  faceRecognitionId: string,
-  blob: Blob,
-): Promise<string> {
-  return uploadToBucket(`profile/${faceRecognitionId}.jpg`, blob);
+/** Upload the member's public profile picture. */
+export function uploadProfilePicture(blob: Blob): Promise<string> {
+  return uploadImage(BUCKET, blob, "profile");
 }

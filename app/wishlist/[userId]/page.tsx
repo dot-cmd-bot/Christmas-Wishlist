@@ -8,11 +8,10 @@ import AppHeader from "@/components/AppHeader";
 import Avatar from "@/components/Avatar";
 import WishlistViewer from "@/components/WishlistViewer";
 import {
-  fetchUserById,
-  fetchWishlistForViewer,
+  getWishlistView,
   reserveItem,
   unreserveItem,
-} from "@/lib/data";
+} from "@/lib/actions";
 import type { Reservation, User, WishlistItem } from "@/lib/types";
 
 export default function WishlistPage() {
@@ -41,25 +40,18 @@ export default function WishlistPage() {
     }
     let cancelled = false;
     void (async () => {
-      try {
-        const [ownerData, view] = await Promise.all([
-          fetchUserById(ownerId),
-          fetchWishlistForViewer(ownerId),
-        ]);
-        if (cancelled) return;
-        if (!ownerData) {
-          setError("That user could not be found.");
-        } else {
-          setOwner(ownerData);
-          setItems(view.items);
-          setReservations(view.reservations);
-        }
-      } catch (err) {
-        console.error(err);
-        if (!cancelled) setError("Could not load this wishlist.");
-      } finally {
-        if (!cancelled) setReady(true);
+      const result = await getWishlistView(ownerId);
+      if (cancelled) return;
+      if (!result.ok) {
+        setError(result.error);
+      } else if (!result.data.owner) {
+        setError("That user could not be found.");
+      } else {
+        setOwner(result.data.owner);
+        setItems(result.data.items);
+        setReservations(result.data.reservations);
       }
+      setReady(true);
     })();
     return () => {
       cancelled = true;
@@ -68,7 +60,8 @@ export default function WishlistPage() {
 
   const handleReserve = useCallback(
     async (itemId: string) => {
-      await reserveItem(itemId, user!.id);
+      const result = await reserveItem(itemId);
+      if (!result.ok) throw new Error(result.error);
       setReservations((prev) => [
         ...prev,
         {
@@ -83,7 +76,8 @@ export default function WishlistPage() {
 
   const handleUnreserve = useCallback(
     async (itemId: string) => {
-      await unreserveItem(itemId, user!.id);
+      const result = await unreserveItem(itemId);
+      if (!result.ok) throw new Error(result.error);
       setReservations((prev) =>
         prev.filter(
           (r) =>

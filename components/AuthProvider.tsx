@@ -9,58 +9,44 @@ import {
   type ReactNode,
 } from "react";
 import type { User } from "@/lib/types";
-import { clearSession, getSession, setSession } from "@/lib/session";
-import { fetchUserById } from "@/lib/data";
 
 interface AuthContextValue {
   user: User | null;
   loading: boolean;
   login: (userId: string, name: string) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
   refresh: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
+
+async function fetchMe(): Promise<User | null> {
+  const res = await fetch("/api/auth/me", {
+    cache: "no-store",
+    credentials: "same-origin",
+  });
+  if (!res.ok) return null;
+  const body = (await res.json()) as { ok?: boolean; user?: User };
+  return body.ok && body.user ? body.user : null;
+}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   const refresh = useCallback(async () => {
-    const session = getSession();
-    if (!session) {
-      setUser(null);
-      setLoading(false);
-      return;
-    }
-    try {
-      const u = await fetchUserById(session.userId);
-      setUser(u);
-    } catch {
-      setUser(null);
-    } finally {
-      setLoading(false);
-    }
+    const u = await fetchMe();
+    setUser(u);
+    setLoading(false);
   }, []);
 
   useEffect(() => {
     let cancelled = false;
     void (async () => {
-      const session = getSession();
-      if (!session) {
-        if (!cancelled) {
-          setUser(null);
-          setLoading(false);
-        }
-        return;
-      }
-      try {
-        const u = await fetchUserById(session.userId);
-        if (!cancelled) setUser(u);
-      } catch {
-        if (!cancelled) setUser(null);
-      } finally {
-        if (!cancelled) setLoading(false);
+      const u = await fetchMe();
+      if (!cancelled) {
+        setUser(u);
+        setLoading(false);
       }
     })();
     return () => {
@@ -68,16 +54,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  const login = useCallback(
-    async (userId: string, name: string) => {
-      setSession({ userId, name });
-      await refresh();
-    },
-    [refresh],
-  );
+  // The httpOnly session cookie is created by the server during face login,
+  // so `login` only needs to re-read the current session.
+  const login = useCallback(async () => {
+    await refresh();
+  }, [refresh]);
 
-  const logout = useCallback(() => {
-    clearSession();
+  const logout = useCallback(async () => {
+    await fetch("/api/auth/logout", { method: "POST", credentials: "same-origin" });
     setUser(null);
   }, []);
 

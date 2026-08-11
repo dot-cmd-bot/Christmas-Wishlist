@@ -9,7 +9,7 @@ import {
   uploadFaceImage,
   uploadProfilePicture,
 } from "@/lib/faceImage";
-import { updateFaceImage, updateProfilePicture } from "@/lib/data";
+import { updateFaceImage, updateProfilePicture } from "@/lib/actions";
 import type { User } from "@/lib/types";
 
 export type FacePhotoMode = "login" | "profile";
@@ -44,6 +44,7 @@ export default function FacePhotoModal({
   onSaved,
 }: FacePhotoModalProps) {
   const cameraRef = useRef<CameraCaptureHandle>(null);
+  const closeRef = useRef<HTMLButtonElement>(null);
   const capturedRef = useRef<{ blob: Blob; url: string } | null>(null);
   const [captured, setCaptured] = useState<{ blob: Blob; url: string } | null>(
     null,
@@ -57,6 +58,20 @@ export default function FacePhotoModal({
     },
     [],
   );
+
+  useEffect(() => {
+    if (!open || !user) return;
+    closeRef.current?.focus();
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") {
+        setCaptured(null);
+        setError("");
+        onClose();
+      }
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open, user, onClose]);
 
   if (!open || !user) return null;
 
@@ -97,13 +112,13 @@ export default function FacePhotoModal({
     try {
       const url =
         mode === "login"
-          ? await uploadFaceImage(user.face_recognition_id, captured.blob)
-          : await uploadProfilePicture(user.face_recognition_id, captured.blob);
-      if (mode === "login") {
-        await updateFaceImage(user.id, url);
-      } else {
-        await updateProfilePicture(user.id, url);
-      }
+          ? await uploadFaceImage(captured.blob)
+          : await uploadProfilePicture(captured.blob);
+      const result =
+        mode === "login"
+          ? await updateFaceImage(url)
+          : await updateProfilePicture(url);
+      if (!result.ok) throw new Error(result.error);
       await onSaved();
       setCaptured(null);
       onClose();
@@ -132,6 +147,7 @@ export default function FacePhotoModal({
           </h3>
           <button
             type="button"
+            ref={closeRef}
             onClick={handleCancel}
             aria-label="Close"
             className="rounded-lg p-1.5 text-stone-400 transition hover:bg-stone-100 hover:text-stone-600"

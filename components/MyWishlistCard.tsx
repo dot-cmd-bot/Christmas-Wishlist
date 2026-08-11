@@ -14,7 +14,6 @@ import ItemModal from "@/components/ItemModal";
 
 interface MyWishlistCardProps {
   items: WishlistItem[];
-  ownerId: string;
   onAdd: (input: ItemInput) => Promise<void>;
   onUpdate: (id: string, patch: Partial<ItemInput>) => Promise<void>;
   onDelete: (id: string) => Promise<void>;
@@ -23,7 +22,6 @@ interface MyWishlistCardProps {
 
 export default function MyWishlistCard({
   items,
-  ownerId,
   onAdd,
   onUpdate,
   onDelete,
@@ -32,24 +30,40 @@ export default function MyWishlistCard({
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<WishlistItem | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [error, setError] = useState("");
 
   function openAdd() {
+    setError("");
     setEditing(null);
     setModalOpen(true);
   }
 
   function openEdit(item: WishlistItem) {
+    setError("");
     setEditing(item);
     setModalOpen(true);
   }
 
   async function runBusy(id: string | null, fn: () => Promise<void>) {
     setBusyId(id);
+    setError("");
     try {
       await fn();
+    } catch (err) {
+      console.error(err);
+      setError("Could not update your wishlist. Please try again.");
+      throw err;
     } finally {
       setBusyId(null);
     }
+  }
+
+  function handleToggle(item: WishlistItem) {
+    runBusy(item.id, () => onToggleAllowMultiple(item)).catch(() => {});
+  }
+
+  function handleDelete(id: string) {
+    runBusy(id, () => onDelete(id)).catch(() => {});
   }
 
   return (
@@ -136,7 +150,7 @@ export default function MyWishlistCard({
                     <input
                       type="checkbox"
                       checked={item.allow_multiple}
-                      onChange={() => runBusy(item.id, () => onToggleAllowMultiple(item))}
+                      onChange={() => handleToggle(item)}
                       disabled={busyId === item.id}
                       className="peer sr-only"
                     />
@@ -155,7 +169,7 @@ export default function MyWishlistCard({
                 </button>
                 <button
                   type="button"
-                  onClick={() => runBusy(item.id, () => onDelete(item.id))}
+                  onClick={() => handleDelete(item.id)}
                   disabled={busyId === item.id}
                   aria-label={`Delete ${item.item_name}`}
                   className="rounded-lg p-2 text-red-500 transition hover:bg-red-50 hover:text-red-700 disabled:opacity-40"
@@ -168,10 +182,11 @@ export default function MyWishlistCard({
         </ul>
       )}
 
+      {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
+
       <ItemModal
         open={modalOpen}
         item={editing}
-        ownerId={ownerId}
         onClose={() => setModalOpen(false)}
         onSubmit={async (input) => {
           if (editing) {
